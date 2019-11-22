@@ -1,0 +1,39 @@
+stages:
+  - dev
+  - staging
+  - sandbox
+ 
+before_script:
+  - python -V
+  - python -m pip install -r requirements.txt
+  - mkdir ~/.aws
+  - cp ./ci-aws-credentials.ini ~/.aws/credentials
+  - cat ~/.aws/credentials
+
+dev-environment:
+  stage: dev    
+  image: python:3.7
+  variables:
+    ENVIRONMENT: "dev"
+  script:
+    - pybot --pythonpath . --variable ENVIRONMENT:$ENVIRONMENT --loglevel TRACE --outputdir logs --exclude alerts --skipteardownonexit --xunit junit.xml .
+  when: manual
+  artifacts:
+    paths:
+      - logs/log.html
+      - logs/junit.xml
+    when: always
+
+staging-environment:
+  stage: staging    
+  image: python:3.7
+  variables:
+    ENVIRONMENT: "staging"
+  script:
+    - pybot --pythonpath . --variable ENVIRONMENT:$ENVIRONMENT --loglevel TRACE --outputdir logs --exclude alerts --skipteardownonexit --xunit junit.xml .
+  when: manual
+  artifacts:
+    paths:
+      - logs/log.html
+      - logs/junit.xml
+    when: always
